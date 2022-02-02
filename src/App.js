@@ -2,16 +2,16 @@ import React, { useState, useEffect } from 'react'
 import Persons from './components/Persons'
 import Forms from './components/Forms'
 import Filter from './components/Filter'
-import axios from 'axios'
 import phoneService from './services/phone'
-
 
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber,setNewNumber] = useState('')
   const [newSearch, setNewSearch] = useState('')
-  
+  const [error, setError] = useState(null)
+  const [color, setColor] = useState('bg-red-400')
+
   useEffect(() => {
     phoneService
       .getAll()
@@ -40,22 +40,21 @@ const App = () => {
     
     let personExists = false;
 
-    persons.map((person) => {
-      if(person.name === newName){
-        personExists = true;
-        alert(`${newName} already exists on the agenda`)
-      }
-    })
-    
-    if(!personExists){
+    persons.map((person) => person.name === newName ? personExists = true : personExists)
+
+    personExists ? 
+      errorHandler(`${newName} already exist`)
+      :
       phoneService
         .create(newPerson)
         .then(returnedPerson => {
           setPersons(persons.concat(returnedPerson))
-          setNewName('')
           setNewNumber('')
+          setNewName('')
+          errorHandler(`${newName} ADDED`)
+          setColor('bg-green-400')
         })
-    }
+        
   }
 
   const handleSearch = (event) => {
@@ -63,9 +62,20 @@ const App = () => {
     console.log(event.target.value)
   }
 
+  const errorHandler = (message) =>{
+    setError(message)
+    setColor('bg-red-400')
+
+    setTimeout(() => {
+      setError(null)
+      
+    }, 5000)
+  }
+
   return (
     <div>
-      <h2>Phonebook</h2>
+      <h2 >Phonebook</h2>
+      <p className={color}>{error}</p>
       <Filter searchValue={newSearch} searchChange={handleSearch} persons={persons}/>
       <Forms nameValue={newName} nameChange={handleName}
              numberValue={newNumber} numberChange={handleNumber}

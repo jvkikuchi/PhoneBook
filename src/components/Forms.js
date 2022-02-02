@@ -1,14 +1,14 @@
 const Forms = ({nameValue,nameChange, numberValue, numberChange, addPerson}) => {
   return(
     <div>
-      <h2>add a new</h2>
+      <h2 className="bg-blue-200">Add a new</h2>
       <form onSubmit={addPerson}>
         <div>
-          name: <input value={nameValue} onChange={nameChange}></input>
+          Name: <input value={nameValue} onChange={nameChange} className="border-2 solid"></input>
           <br></br>
-          number: <input value={numberValue} onChange={numberChange}></input>
+          Number: <input value={numberValue} onChange={numberChange} className="border-2 solid"></input>
         </div>
-        <button type="submit">add</button>
+        <button type="submit" className="border-2 solid border-slate-700">add</button>
       </form>
     </div>
     
