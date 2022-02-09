@@ -12,4 +12,9 @@ const create = newObject => {
   return request.then(response => response.data)
 }
 
+const remove = newObject => {
+
+}
+
+
 export default {getAll, create}
