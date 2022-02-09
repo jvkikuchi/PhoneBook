@@ -12,12 +12,6 @@ const App = () => {
   const [error, setError] = useState(null)
   const [color, setColor] = useState('')
 
-  
-  const style = {
-    backgroundColor: '#8BC6EC',
-    backgroundImage: 'linear-gradient(135deg, #8BC6EC 0%, #9599E2 100%)'
-  }
-
   useEffect(() => {
     phoneService
       .getAll()
@@ -40,17 +34,32 @@ const App = () => {
 
     const newPerson = {
       name: newName, 
-      number: newNumber, 
-      id: persons.length + 1
+      number: newNumber,
+      profilePicture: `https://picsum.photos/200/200`
     }
     
     let personExists = false;
 
-    persons.map((person) => person.name === newName ? personExists = true : personExists)
+    persons.map((person) => person.name === newName ? personExists = true : personExists) 
 
-    personExists ? 
-      errorHandler(`${newName} already exist`)
-      :
+    if(personExists){
+      if((window.confirm(`${newName} already exist, replace old number?`))){
+        console.log(personExists);
+        const personToUpdate = persons.find(person => person.name === newPerson.name)
+        console.log(personToUpdate)
+        const personUpdated = {...personToUpdate, number: newNumber}
+        console.log(personUpdated)
+
+        phoneService
+          .update(personUpdated.id, personUpdated)
+          .then(returnedPerson => {
+            setPersons(persons.map(person => person.id !== personUpdated.id ? person : returnedPerson))
+            setNewNumber('')
+            setNewName('')
+          })
+      }
+    } else{
+      console.log(personExists);
       phoneService
         .create(newPerson)
         .then(returnedPerson => {
@@ -60,7 +69,10 @@ const App = () => {
           errorHandler(`${newName} ADDED`)
           setColor('bg-green-400')
         })
-        
+    }
+
+    
+
   }
 
   const handleSearch = (event) => {
@@ -79,7 +91,13 @@ const App = () => {
   }
 
   const remove = (id) =>{
-    console.log(id, 'clicked')
+    const personToDelete = persons.find(person => person.id === id)
+    
+    if(window.confirm(`Delete ${personToDelete.name}?`)){
+      phoneService.remove(personToDelete.id)
+      setPersons(persons.filter(person => person.id !== personToDelete.id))
+
+    }
   }
 
   return (
@@ -92,10 +110,10 @@ const App = () => {
              addPerson={addPerson}/>
       <h2>Numbers</h2>
       
-      <div style={{backgroundColor: '#8BC6EC', backgroundImage: 'linear-gradient(135deg, #8BC6EC 0%, #9599E2 100%)'}}  className="flex flex-col items-center sm:mt-4 w-full h-screen">
-        <ul className="sm:grid gap-2 grid-cols-3 mt-2">
+      <div  className="flex flex-col items-center sm:mt-4 w-full h-fit">
+        <ul  className=" sm:grid gap-2 grid-cols-3 mt-2">
             {persons.map((person,i) => 
-                <Person key={i} person={person} actionClick={() => {}} />
+                <Person key={i} person={person} actionClick={() => {remove(person.id)}} />
             )}
         </ul>
       </div>
